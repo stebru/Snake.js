@@ -1,5 +1,6 @@
 var snake;
 var boardElement = document.getElementById('board');
+var scoreElement = document.getElementById('score');
 
 var directions = {
   UP: 1,
@@ -37,17 +38,20 @@ var tileProto = {
     if (this.occupiedBy.isHead) {
       this.element.classList.add('head');
     }
-    if (this.occupiedBy.isTail) {
-      this.element.classList.add('tail');
-    }
   },
   clearTile: function() {
     this.element.classList.remove('on', 'head', 'tail');
   },
-  paintFruit: function() {
-    this.element.classList.add('fruit');
-  },
   addSnakePart: function(snakePart) {
+    if (this.hasFruit) {
+      game.updateScore(10);
+      this.removeFruit();
+      board.addFruit();
+      var body = Object.create(bodyProto);
+      var tailTile = snake.bodyParts[snake.bodyParts.length - 1].tile;
+      body.tile = tailTile.addSnakePart(body);
+      snake.bodyParts.push(body);
+    }
     this.occupiedBy = snakePart;
     snakePart.tile = this;
     this.paintSnakePart();
@@ -64,6 +68,13 @@ var tileProto = {
   addFruit: function() {
     this.hasFruit = true;
     this.paintFruit();
+  },
+  removeFruit: function() {
+    this.hasFruit = false;
+    this.element.classList.remove('fruit');
+  },
+  paintFruit: function() {
+    this.element.classList.add('fruit');
   }
 };
 
@@ -75,8 +86,8 @@ var boardProto = {
   },
 
   addFruit: function() {
-    var rndRow = Math.floor(Math.random() * (board.numRows + 1));
-    var rndCol = Math.floor(Math.random() * (board.numCols + 1));
+    var rndRow = Math.floor(Math.random() * board.numRows);
+    var rndCol = Math.floor(Math.random() * board.numCols);
     var tile = board.getTileAt(rndRow, rndCol);
     tile.addFruit();
   },
@@ -97,10 +108,9 @@ var boardProto = {
     body.tile = board.rows[4].tiles[4].addSnakePart(body);
     snake.bodyParts.push(body);
 
-    var tail = Object.create(bodyProto);
-    tail.isTail = true;
-    tail.tile = board.rows[4].tiles[3].addSnakePart(tail);
-    snake.bodyParts.push(tail);
+    var body = Object.create(bodyProto);
+    body.tile = board.rows[4].tiles[3].addSnakePart(body);
+    snake.bodyParts.push(body);
   },
 
   createMatrix: function() {
@@ -198,7 +208,12 @@ board.numCols = 20;
 
 board.createMatrix();
 
-var game = Object.create({});
+var game = Object.create({
+  updateScore: function(addPoints) {
+    this.score += addPoints;
+    scoreElement.innerHTML = this.score;
+  }
+});
 game.score = 0;
 
 document.addEventListener('keydown', function(event) {
