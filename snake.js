@@ -16,8 +16,8 @@ var keycodes = {
 
 var board = Object.create({});
 board.rows = [];
-board.numRows = 10;
-board.numCols = 10;
+board.numRows = 20;
+board.numCols = 20;
 
 document.addEventListener('keydown', function(event) {
   if (event.keyCode === keycodes.UP && snake.direction !== directions.DOWN) {
@@ -26,7 +26,7 @@ document.addEventListener('keydown', function(event) {
     snake.direction = directions.DOWN;
   } else if (event.keyCode === keycodes.RIGHT && snake.direction !== directions.LEFT) {
     snake.direction = directions.RIGHT;
-  } else if (event.keyCode === keycodes.LEFT && snake.directions !== directions.RIGHT) {
+  } else if (event.keyCode === keycodes.LEFT && snake.direction !== directions.RIGHT) {
     snake.direction = directions.LEFT;
   }
 });
