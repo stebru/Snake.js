@@ -25,8 +25,8 @@ html, body {
 
 .col {
   border: 1px #ccc solid;
-  width: 3em;
-  height: 3em;
+  width: 1.5em;
+  height: 1.5em;
 }
 
 .col.on {
