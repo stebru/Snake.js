@@ -44,8 +44,8 @@ var tileProto = {
   },
   addSnakePart: function(snakePart) {
     if (this.hasFruit) {
-      game.updateScore(10);
       this.removeFruit();
+      game.updateScore();
       board.addFruit();
       var body = Object.create(bodyProto);
       var tailTile = snake.bodyParts[snake.bodyParts.length - 1].tile;
@@ -81,8 +81,6 @@ var tileProto = {
   }
 };
 
-var last;
-var DELTA = 100;
 var boardProto = {
 
   getTileAt: function(row, col) {
@@ -100,7 +98,6 @@ var boardProto = {
   createSnake: function() {
     snake = Object.create(snakeProto);
 
-    snake.speed = 10;
     snake.direction = directions.RIGHT;
     snake.bodyParts = [];
 
@@ -157,8 +154,6 @@ var boardProto = {
   },
 
   draw: function(timestamp) {
-
-
 
     var snakeHead = snake.getHead();
     var moveToRow, moveToCol;
@@ -219,15 +214,21 @@ board.numCols = 20;
 board.createMatrix();
 
 var game = Object.create({
-  updateScore: function(addPoints) {
-    this.score += addPoints;
+  updateScore: function() {
+    console.log('updateScore', this.nextScore);
+    this.score += this.nextScore;
     scoreElement.innerHTML = this.score;
+    this.speed -= 1;
+    this.nextScore += 5;
   },
   gameOver: function() {
     this.isGameOver = true;
   }
 });
 game.score = 0;
+game.speed = 100;
+game.lastTick = 0;
+game.nextScore = 10;
 
 document.addEventListener('keydown', function(event) {
   if (event.keyCode === keycodes.UP && snake.direction !== directions.DOWN) {
@@ -249,10 +250,10 @@ function run(timestamp) {
     return;
   }
 
-  if ((timestamp - last) < DELTA) {
+  if ((timestamp - game.lastTick) < game.speed) {
     return false;
   }
-  last = timestamp;
+  game.lastTick = timestamp;
 
   board.draw(timestamp);
 }
