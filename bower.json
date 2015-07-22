@@ -1,0 +1,19 @@
+{
+  "name": "snake",
+  "main": "snake.js",
+  "version": "0.0.0",
+  "authors": [
+    "Stefan Bruvik <stefan@colours.no>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "normalize.css": "~3.0.3"
+  }
+}

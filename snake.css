@@ -1,0 +1,38 @@
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+html, body {
+  height: 100%;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.board {
+  width: 30em;
+}
+
+.row {
+  display: flex;
+}
+
+.col {
+  border: 1px #ccc solid;
+  width: 3em;
+  height: 3em;
+}
+
+.col.on {
+  background-color: #E71D36
+}
+
+.col.on.head {
+  background-color: #F56A20;
+}
