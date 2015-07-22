@@ -14,22 +14,7 @@ var keycodes = {
   LEFT: 37
 };
 
-var board = Object.create({});
-board.rows = [];
-board.numRows = 20;
-board.numCols = 20;
-
-document.addEventListener('keydown', function(event) {
-  if (event.keyCode === keycodes.UP && snake.direction !== directions.DOWN) {
-    snake.direction = directions.UP;
-  } else if (event.keyCode === keycodes.DOWN && snake.direction !== directions.UP) {
-    snake.direction = directions.DOWN;
-  } else if (event.keyCode === keycodes.RIGHT && snake.direction !== directions.LEFT) {
-    snake.direction = directions.RIGHT;
-  } else if (event.keyCode === keycodes.LEFT && snake.direction !== directions.RIGHT) {
-    snake.direction = directions.LEFT;
-  }
-});
+var bodyProto = {};
 
 var snakeProto = {
   getLength: function() {
@@ -44,8 +29,6 @@ var snakeProto = {
     return this.bodyParts[this.bodyParts.length - 1];
   }
 };
-
-var bodyProto = {};
 
 var tileProto = {
   paintSnakePart: function() {
@@ -62,6 +45,10 @@ var tileProto = {
   clearTile: function() {
     this.element.classList.remove('on', 'head', 'tail');
     this.element.innerHTML = '';
+  },
+  paintFruit: function() {
+    this.element.classList.add('fruit');
+    this.element.innerHTML = 'F';
   },
   addSnakePart: function(snakePart) {
     this.occupiedBy = snakePart;
@@ -87,121 +74,155 @@ var tileProto = {
   },
   hasSnakePart: function() {
     return this.occupiedBy != null;
+  },
+  addFruit: function() {
+    this.hasFruit = true;
+    this.paintFruit();
   }
 };
 
-(function createMatrix() {
+var boardProto = {
 
-  var fragment = document.createDocumentFragment();
-  var row, col;
+  getTileAt: function(row, col) {
+    var rowObj = this.rows[row];
+    return rowObj.tiles[col];
+  },
 
-  for (var i = 0; i < board.numRows; i++) {
-    row = document.createElement('div');
-    row.classList.add('row');
+  addFruit: function() {
+    var rndRow = Math.floor(Math.random() * (board.numRows + 1));
+    var rndCol = Math.floor(Math.random() * (board.numCols + 1));
+    var tile = board.getTileAt(rndRow, rndCol);
+    tile.addFruit();
+  },
 
-    var rowObj = Object.create(null);
-    rowObj.index = i;
-    rowObj.tiles = [];
+  createSnake: function() {
+    snake = Object.create(snakeProto);
 
-    for (var j = 0; j < board.numCols; j++) {
-      col = document.createElement('div');
-      col.classList.add('col');
-      row.appendChild(col);
+    snake.speed = 10;
+    snake.direction = directions.RIGHT;
+    snake.bodyParts = [];
 
-      var tile = Object.create(tileProto);
-      tile.index = j;
-      tile.row = i;
-      tile.col = j;
-      tile.occupiedBy = null;
+    var head = Object.create(bodyProto);
+    head.isHead = true;
+    head.tile = board.rows[4].tiles[5].addSnakePart(head);
+    snake.bodyParts.push(head);
 
-      tile.element = col;
-      rowObj.tiles.push(tile);
+    var body = Object.create(bodyProto);
+    body.tile = board.rows[4].tiles[4].addSnakePart(body);
+    snake.bodyParts.push(body);
+
+    var tail = Object.create(bodyProto);
+    tail.isTail = true;
+    tail.tile = board.rows[4].tiles[3].addSnakePart(tail);
+    snake.bodyParts.push(tail);
+  },
+
+  createMatrix: function() {
+
+    var fragment = document.createDocumentFragment();
+    var row, col;
+
+    for (var i = 0; i < this.numRows; i++) {
+      row = document.createElement('div');
+      row.classList.add('row');
+
+      var rowObj = Object.create(null);
+      rowObj.index = i;
+      rowObj.tiles = [];
+
+      for (var j = 0; j < this.numCols; j++) {
+        col = document.createElement('div');
+        col.classList.add('col');
+        row.appendChild(col);
+
+        var tile = Object.create(tileProto);
+        tile.index = j;
+        tile.row = i;
+        tile.col = j;
+        tile.occupiedBy = null;
+
+        tile.element = col;
+        rowObj.tiles.push(tile);
+      }
+      this.rows.push(rowObj);
+      fragment.appendChild(row);
     }
-    board.rows.push(rowObj);
-    fragment.appendChild(row);
+    boardElement.appendChild(fragment);
+
+    this.createSnake();
+    this.addFruit();
+
+    window.requestAnimationFrame(game);
+  },
+
+  draw: function() {
+
+    var snakeHead = snake.getHead();
+    var moveToRow, moveToCol;
+
+    switch (snake.direction) {
+      case directions.UP:
+        moveToRow = snakeHead.tile.row - 1;
+        moveToCol = snakeHead.tile.col;
+        break;
+      case directions.DOWN:
+        moveToRow = snakeHead.tile.row + 1;
+        moveToCol = snakeHead.tile.col;
+        break;
+      case directions.RIGHT:
+        moveToRow = snakeHead.tile.row;
+        moveToCol = snakeHead.tile.col + 1;
+        break;
+      case directions.LEFT:
+        moveToRow = snakeHead.tile.row;
+        moveToCol = snakeHead.tile.col - 1;
+        break;
+    }
+
+    if (moveToRow < 0) {
+      moveToRow = board.numRows - 1;
+    } else if (moveToRow > board.numRows - 1) {
+      moveToRow = 0;
+    } else if (moveToCol > board.numRows - 1) {
+      moveToCol = 0;
+    } else if (moveToCol < 0) {
+      moveToCol = board.numRows - 1;
+    }
+
+    var moveToTile = board.getTileAt(moveToRow, moveToCol);
+
+    for (var b = 0; b < snake.bodyParts.length; b++) {
+
+      var currentBodyPart = snake.bodyParts[b];
+
+      var prevTile = currentBodyPart.tile;
+      prevTile.removeSnakePart();
+
+      currentBodyPart.tile = moveToTile.addSnakePart(currentBodyPart);
+
+      moveToTile = prevTile;
+    }
   }
-  boardElement.appendChild(fragment);
+};
 
-  var snake = createSnake();
+var board = Object.create(boardProto);
+board.rows = [];
+board.numRows = 20;
+board.numCols = 20;
 
-  window.requestAnimationFrame(game);
-})();
+board.createMatrix();
 
-function createSnake() {
-  snake = Object.create(snakeProto);
-
-  snake.speed = 10;
-  snake.direction = directions.RIGHT;
-  snake.bodyParts = [];
-
-  var head = Object.create(bodyProto);
-  head.isHead = true;
-  head.tile = board.rows[4].tiles[5].addSnakePart(head);
-  snake.bodyParts.push(head);
-
-  var body = Object.create(bodyProto);
-  body.tile = board.rows[4].tiles[4].addSnakePart(body);
-  snake.bodyParts.push(body);
-
-  var tail = Object.create(bodyProto);
-  tail.isTail = true;
-  tail.tile = board.rows[4].tiles[3].addSnakePart(tail);
-  snake.bodyParts.push(tail);
-}
-
-function getTileAt(row, col) {
-  var rowObj = board.rows[row];
-  return rowObj.tiles[col];
-}
-
-function draw() {
-
-  var snakeHead = snake.getHead();
-  var moveToRow, moveToCol;
-
-  switch (snake.direction) {
-    case directions.UP:
-      moveToRow = snakeHead.tile.row - 1;
-      moveToCol = snakeHead.tile.col;
-      break;
-    case directions.DOWN:
-      moveToRow = snakeHead.tile.row + 1;
-      moveToCol = snakeHead.tile.col;
-      break;
-    case directions.RIGHT:
-      moveToRow = snakeHead.tile.row;
-      moveToCol = snakeHead.tile.col + 1;
-      break;
-    case directions.LEFT:
-      moveToRow = snakeHead.tile.row;
-      moveToCol = snakeHead.tile.col - 1;
-      break;
+document.addEventListener('keydown', function(event) {
+  if (event.keyCode === keycodes.UP && snake.direction !== directions.DOWN) {
+    snake.direction = directions.UP;
+  } else if (event.keyCode === keycodes.DOWN && snake.direction !== directions.UP) {
+    snake.direction = directions.DOWN;
+  } else if (event.keyCode === keycodes.RIGHT && snake.direction !== directions.LEFT) {
+    snake.direction = directions.RIGHT;
+  } else if (event.keyCode === keycodes.LEFT && snake.direction !== directions.RIGHT) {
+    snake.direction = directions.LEFT;
   }
-
-  if (moveToRow < 0) {
-    moveToRow = board.numRows - 1;
-  } else if (moveToRow > board.numRows - 1) {
-    moveToRow = 0;
-  } else if (moveToCol > board.numRows - 1) {
-    moveToCol = 0;
-  } else if (moveToCol < 0) {
-    moveToCol = board.numRows - 1;
-  }
-
-  var moveToTile = getTileAt(moveToRow, moveToCol);
-
-  for (var b = 0; b < snake.bodyParts.length; b++) {
-
-    var currentBodyPart = snake.bodyParts[b];
-
-    var prevTile = currentBodyPart.tile;
-    prevTile.removeSnakePart();
-
-    currentBodyPart.tile = moveToTile.addSnakePart(currentBodyPart);
-
-    moveToTile = prevTile;
-  }
-}
+});
 
 var last;
 var DELTA = 100;
@@ -211,6 +232,6 @@ function game(timestamp) {
   if ((timestamp - last) < DELTA) {
     return;
   }
-  draw();
+  board.draw();
   last = timestamp;
 }
