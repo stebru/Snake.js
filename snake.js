@@ -7,20 +7,26 @@ var directions = {
   RIGHT: 8
 };
 
+var keycodes = {
+  UP: 38,
+  DOWN: 40,
+  RIGHT: 39,
+  LEFT: 37
+};
+
 var board = Object.create({});
 board.rows = [];
 board.numRows = 10;
 board.numCols = 10;
 
 document.addEventListener('keydown', function(event) {
-  console.log(event);
-  if (event.keyCode === 38) {
+  if (event.keyCode === keycodes.UP && snake.direction !== directions.DOWN) {
     snake.direction = directions.UP;
-  } else if (event.keyCode === 40) {
+  } else if (event.keyCode === keycodes.DOWN && snake.direction !== directions.UP) {
     snake.direction = directions.DOWN;
-  } else if (event.keyCode === 39) {
+  } else if (event.keyCode === keycodes.RIGHT && snake.direction !== directions.LEFT) {
     snake.direction = directions.RIGHT;
-  } else if (event.keyCode === 37) {
+  } else if (event.keyCode === keycodes.LEFT && snake.directions !== directions.RIGHT) {
     snake.direction = directions.LEFT;
   }
 });
@@ -85,7 +91,6 @@ var tileProto = {
 };
 
 (function createMatrix() {
-
 
   var fragment = document.createDocumentFragment();
   var row, col;
@@ -154,18 +159,23 @@ function draw() {
   var snakeHead = snake.getHead();
   var moveToRow, moveToCol;
 
-  if (snake.direction === directions.UP) {
-    moveToRow = snakeHead.tile.row - 1;
-    moveToCol = snakeHead.tile.col;
-  } else if (snake.direction === directions.DOWN) {
-    moveToRow = snakeHead.tile.row + 1;
-    moveToCol = snakeHead.tile.col;
-  } else if (snake.direction === directions.RIGHT) {
-    moveToRow = snakeHead.tile.row;
-    moveToCol = snakeHead.tile.col + 1;
-  } else if (snake.direction === directions.LEFT) {
-    moveToRow = snakeHead.tile.row;
-    moveToCol = snakeHead.tile.col - 1;
+  switch (snake.direction) {
+    case directions.UP:
+      moveToRow = snakeHead.tile.row - 1;
+      moveToCol = snakeHead.tile.col;
+      break;
+    case directions.DOWN:
+      moveToRow = snakeHead.tile.row + 1;
+      moveToCol = snakeHead.tile.col;
+      break;
+    case directions.RIGHT:
+      moveToRow = snakeHead.tile.row;
+      moveToCol = snakeHead.tile.col + 1;
+      break;
+    case directions.LEFT:
+      moveToRow = snakeHead.tile.row;
+      moveToCol = snakeHead.tile.col - 1;
+      break;
   }
 
   if (moveToRow < 0) {
