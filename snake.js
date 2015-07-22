@@ -81,6 +81,8 @@ var tileProto = {
   }
 };
 
+var last;
+var DELTA = 100;
 var boardProto = {
 
   getTileAt: function(row, col) {
@@ -154,7 +156,9 @@ var boardProto = {
     window.requestAnimationFrame(run);
   },
 
-  draw: function() {
+  draw: function(timestamp) {
+
+
 
     var snakeHead = snake.getHead();
     var moveToRow, moveToCol;
@@ -195,7 +199,6 @@ var boardProto = {
       var currentBodyPart = snake.bodyParts[b];
 
       var prevTile = currentBodyPart.tile;
-
 
       currentBodyPart.tile = moveToTile.addSnakePart(currentBodyPart);
       if (currentBodyPart.tile === false) {
@@ -238,17 +241,18 @@ document.addEventListener('keydown', function(event) {
   }
 });
 
-var last;
-var DELTA = 100;
-
 function run(timestamp) {
+
+  window.requestAnimationFrame(run);
+
   if (game.isGameOver) {
     return;
   }
-  window.requestAnimationFrame(run);
+
   if ((timestamp - last) < DELTA) {
-    return;
+    return false;
   }
-  board.draw();
   last = timestamp;
+
+  board.draw(timestamp);
 }

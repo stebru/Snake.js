@@ -16,7 +16,7 @@ html, body {
 }
 
 .board {
-  width: 30em;
+  border: 1px solid rgba(0,0,0,0.2);
 }
 
 .row {
@@ -24,13 +24,16 @@ html, body {
 }
 
 .col {
-  border: 1px #ccc solid;
-  width: 1.5em;
-  height: 1.5em;
+  padding: 0.5em;
 }
 
 .col.on {
-  background-color: #E71D36
+  background-color: #E71D36;
+}
+
+.col.on:after {
+  content: "";
+  color: #fff;
 }
 
 .col.on.head {
@@ -39,4 +42,5 @@ html, body {
 
 .col.fruit {
   background-color: #069E2D;
+  border-radius: 50%;
 }
