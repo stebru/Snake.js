@@ -1,5 +1,6 @@
 var snake;
 var boardElement = document.getElementById('board');
+
 var directions = {
   UP: 1,
   DOWN: 2,
@@ -35,41 +36,26 @@ var tileProto = {
     this.element.classList.add('on');
     if (this.occupiedBy.isHead) {
       this.element.classList.add('head');
-      this.element.innerHTML = 'H';
     }
     if (this.occupiedBy.isTail) {
       this.element.classList.add('tail');
-      this.element.innerHTML = 'T';
     }
   },
   clearTile: function() {
     this.element.classList.remove('on', 'head', 'tail');
-    this.element.innerHTML = '';
   },
   paintFruit: function() {
     this.element.classList.add('fruit');
-    this.element.innerHTML = 'F';
   },
   addSnakePart: function(snakePart) {
     this.occupiedBy = snakePart;
     snakePart.tile = this;
-    if (snakePart.isHead) {
-      this.isOccupiedByHead = true;
-    } else if (snakePart.isTail) {
-      this.isOccupiedByTail = true;
-    }
-
     this.paintSnakePart();
-
     return this;
   },
   removeSnakePart: function() {
     this.occupiedBy = null;
-    this.isOccupiedByHead = false;
-    this.isOccupiedByTail = false;
-
     this.clearTile();
-
     return this;
   },
   hasSnakePart: function() {
@@ -152,7 +138,7 @@ var boardProto = {
     this.createSnake();
     this.addFruit();
 
-    window.requestAnimationFrame(game);
+    window.requestAnimationFrame(run);
   },
 
   draw: function() {
@@ -212,6 +198,9 @@ board.numCols = 20;
 
 board.createMatrix();
 
+var game = Object.create({});
+game.score = 0;
+
 document.addEventListener('keydown', function(event) {
   if (event.keyCode === keycodes.UP && snake.direction !== directions.DOWN) {
     snake.direction = directions.UP;
@@ -227,8 +216,8 @@ document.addEventListener('keydown', function(event) {
 var last;
 var DELTA = 100;
 
-function game(timestamp) {
-  window.requestAnimationFrame(game);
+function run(timestamp) {
+  window.requestAnimationFrame(run);
   if ((timestamp - last) < DELTA) {
     return;
   }
