@@ -51,6 +51,9 @@ var tileProto = {
       var tailTile = snake.bodyParts[snake.bodyParts.length - 1].tile;
       body.tile = tailTile.addSnakePart(body);
       snake.bodyParts.push(body);
+    } else if (snakePart.isHead && this.occupiedBy) {
+      game.gameOver();
+      return false;
     }
     this.occupiedBy = snakePart;
     snakePart.tile = this;
@@ -192,9 +195,13 @@ var boardProto = {
       var currentBodyPart = snake.bodyParts[b];
 
       var prevTile = currentBodyPart.tile;
-      prevTile.removeSnakePart();
+
 
       currentBodyPart.tile = moveToTile.addSnakePart(currentBodyPart);
+      if (currentBodyPart.tile === false) {
+        break;
+      }
+      prevTile.removeSnakePart();
 
       moveToTile = prevTile;
     }
@@ -212,6 +219,9 @@ var game = Object.create({
   updateScore: function(addPoints) {
     this.score += addPoints;
     scoreElement.innerHTML = this.score;
+  },
+  gameOver: function() {
+    this.isGameOver = true;
   }
 });
 game.score = 0;
@@ -232,6 +242,9 @@ var last;
 var DELTA = 100;
 
 function run(timestamp) {
+  if (game.isGameOver) {
+    return;
+  }
   window.requestAnimationFrame(run);
   if ((timestamp - last) < DELTA) {
     return;
