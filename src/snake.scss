@@ -25,10 +25,10 @@ html, body {
 
 .col {
   padding: 0.5em;
-}
 
-.col.on {
-  background-color: #E71D36;
+  &.on {
+    background-color: #E71D36;
+  }
 }
 
 .col.on:after {

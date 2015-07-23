@@ -1,0 +1,36 @@
+html {
+  box-sizing: border-box; }
+
+*, *:before, *:after {
+  box-sizing: inherit; }
+
+html, body {
+  height: 100%; }
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center; }
+
+.board {
+  border: 1px solid rgba(0, 0, 0, 0.2); }
+
+.row {
+  display: flex; }
+
+.col {
+  padding: 0.5em; }
+  .col.on {
+    background-color: #E71D36; }
+
+.col.on:after {
+  content: "";
+  color: #fff; }
+
+.col.on.head {
+  background-color: #F56A20; }
+
+.col.fruit {
+  background-color: #069E2D;
+  border-radius: 50%;
+  transition: background-color 0.3s ease-in-out; }
