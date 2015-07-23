@@ -1,6 +1,11 @@
 var gulp = require('gulp');
 var babel = require('gulp-babel');
 var browserSync = require('browser-sync').create();
+var browserify = require('browserify');
+var babelify = require('babelify');
+var fs = require('fs');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 
 gulp.task('serve', ['js'], function() {
   browserSync.init({
@@ -15,8 +20,15 @@ gulp.task('serve', ['js'], function() {
 });
 
 gulp.task('js', function() {
-  return gulp.src('src/snake.js')
-    .pipe(babel())
+  browserify('src/index.js', {
+    debug: true
+  })
+    .transform(babelify)
+    .bundle()
+    .on('error', function(err) {
+      console.log('Error : ' + err.message);
+    })
+    .pipe(source('bundle.js'))
     .pipe(gulp.dest('dist'));
 });
 
