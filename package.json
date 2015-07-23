@@ -1,0 +1,25 @@
+{
+  "name": "snake.js",
+  "version": "1.0.0",
+  "description": "A snake game made in plain HTML+CSS+JS",
+  "main": "snake.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stebru/Snake.js.git"
+  },
+  "keywords": [
+    "snake"
+  ],
+  "author": "Stefan Bruvik",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stebru/Snake.js/issues"
+  },
+  "homepage": "https://github.com/stebru/Snake.js#readme",
+  "devDependencies": {
+    "gulp": "^3.9.0"
+  }
+}
