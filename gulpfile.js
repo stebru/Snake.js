@@ -2,21 +2,23 @@ var gulp = require('gulp');
 var babel = require('gulp-babel');
 var browserSync = require('browser-sync').create();
 
-gulp.task('browser-sync', function() {
+gulp.task('serve', ['js'], function() {
   browserSync.init({
-    files: ['src/snake.js'],
     browser: ['Google Chrome Canary'],
     port: 8000,
     server: {
       baseDir: "./"
     }
   });
+
+  gulp.watch('src/*.js', ['js-watch']);
 });
 
-gulp.task('babel', function() {
+gulp.task('js', function() {
   return gulp.src('src/snake.js')
     .pipe(babel())
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['babel', 'browser-sync']);
+gulp.task('js-watch', ['js'], browserSync.reload);
+gulp.task('default', ['js', 'serve']);
