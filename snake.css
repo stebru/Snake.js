@@ -43,5 +43,5 @@ html, body {
 .col.fruit {
   background-color: #069E2D;
   border-radius: 50%;
-  transition: background-color 1s ease-in-out;
+  transition: background-color .3s ease-in-out;
 }
