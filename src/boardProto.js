@@ -79,8 +79,13 @@ var boardProto = {
     this.snake = snake;
   },
 
-  draw(snake) {
+  clear(game) {
+    this.snake = null;
+    game.boardElement.innerHTML = null;
+    game.scoreElement.innerHTML = '0';
+  },
 
+  draw(snake) {
     var snakeHead = this.snake.getHead();
     var moveToRow, moveToCol;
     var directions = settings.directions;
@@ -119,7 +124,6 @@ var boardProto = {
     for (var b = 0; b < this.snake.bodyParts.length; b++) {
 
       var currentBodyPart = this.snake.bodyParts[b];
-
       var prevTile = currentBodyPart.tile;
 
       currentBodyPart.tile = moveToTile.addSnakePart(currentBodyPart);
@@ -127,7 +131,6 @@ var boardProto = {
         break;
       }
       prevTile.removeSnakePart();
-
       moveToTile = prevTile;
     }
   }
