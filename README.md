@@ -1,3 +1,3 @@
 #Snake.js
 
-A snake game made in plain HTML+CSS+JS
+A snake game made in vanilla JavaScript.
