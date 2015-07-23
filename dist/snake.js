@@ -1,3 +1,5 @@
+'use strict';
+
 var snake, board;
 var boardElement = document.getElementById('board');
 var scoreElement = document.getElementById('score');
@@ -20,32 +22,32 @@ var keycodes = {
 var bodyProto = {};
 
 var snakeProto = {
-  getLength: function() {
+  getLength: function getLength() {
     return this.bodyParts.length;
   },
 
-  getHead: function() {
+  getHead: function getHead() {
     return this.bodyParts[0];
   },
 
-  getTail: function() {
+  getTail: function getTail() {
     return this.bodyParts[this.bodyParts.length - 1];
   }
 };
 
 var tileProto = {
-  paintSnakePart: function() {
+  paintSnakePart: function paintSnakePart() {
     this.element.classList.add('on');
     if (this.occupiedBy.isHead) {
       this.element.classList.add('head');
     }
   },
 
-  clearTile: function() {
-    this.element.classList.remove('on', 'head', 'tail');
+  clearTile: function clearTile() {
+    this.element.classList.remove('on', 'head');
   },
 
-  addSnakePart: function(snakePart) {
+  addSnakePart: function addSnakePart(snakePart) {
     if (this.hasFruit) {
       this.removeFruit();
       game.updateScore();
@@ -64,39 +66,39 @@ var tileProto = {
     return this;
   },
 
-  removeSnakePart: function() {
+  removeSnakePart: function removeSnakePart() {
     this.occupiedBy = null;
     this.clearTile();
     return this;
   },
 
-  hasSnakePart: function() {
+  hasSnakePart: function hasSnakePart() {
     return this.occupiedBy != null;
   },
 
-  addFruit: function() {
+  addFruit: function addFruit() {
     this.hasFruit = true;
     this.paintFruit();
   },
 
-  removeFruit: function() {
+  removeFruit: function removeFruit() {
     this.hasFruit = false;
     this.element.classList.remove('fruit');
   },
 
-  paintFruit: function() {
+  paintFruit: function paintFruit() {
     this.element.classList.add('fruit');
   }
 };
 
 var boardProto = {
 
-  getTileAt: function(row, col) {
+  getTileAt: function getTileAt(row, col) {
     var rowObj = this.rows[row];
     return rowObj.tiles[col];
   },
 
-  addFruit: function() {
+  addFruit: function addFruit() {
 
     var isTileOccupied = true;
     do {
@@ -108,7 +110,7 @@ var boardProto = {
     tile.addFruit();
   },
 
-  createSnake: function() {
+  createSnake: function createSnake() {
     snake = Object.create(snakeProto);
 
     snake.direction = directions.RIGHT;
@@ -128,30 +130,7 @@ var boardProto = {
     snake.bodyParts.push(body);
   },
 
-  destroy: function() {
-    this.fragment = null;
-    boardElement.innerHTML = '';
-
-    snake.bodyParts.forEach(function(bodyPart) {
-      bodyPart.tile.element = null;
-      bodyPart.tile = null;
-      bodyPart = null;
-    });
-    snake.bodyParts = null;
-    snake = null;
-
-    board.rows.forEach(function(rowObj) {
-      rowObj.tiles.forEach(function(tile) {
-        tile.element = null;
-        tile = null;
-      });
-      rowObj = null;
-    });
-
-    board.rows = [];
-  },
-
-  createMatrix: function() {
+  createMatrix: function createMatrix() {
 
     this.fragment = document.createDocumentFragment();
     var row, col;
@@ -182,12 +161,9 @@ var boardProto = {
       this.fragment.appendChild(row);
     }
     boardElement.appendChild(this.fragment);
-
-    this.createSnake();
-    this.addFruit();
   },
 
-  draw: function(timestamp) {
+  draw: function draw(timestamp) {
 
     var snakeHead = snake.getHead();
     var moveToRow, moveToCol;
@@ -241,36 +217,38 @@ var boardProto = {
 };
 
 var game = Object.create({
-  updateScore: function() {
+  updateScore: function updateScore() {
     this.score += this.nextScore;
     scoreElement.innerHTML = this.score;
     this.speed -= 1;
     this.nextScore += 5;
   },
 
-  resetScore: function() {
+  resetScore: function resetScore() {
     this.score = 0;
     scoreElement.innerHTML = this.score;
   },
 
-  gameOver: function() {
+  gameOver: function gameOver() {
     this.isGameOver = true;
   },
 
-  start: function() {
+  start: function start() {
     this.gameOver();
     this.resetScore();
 
     if (board) {
       board.destroy();
+    } else {
+      board = Object.create(boardProto);
+      board.rows = [];
+      board.numRows = 20;
+      board.numCols = 20;
+      board.createMatrix();
     }
 
-    board = Object.create(boardProto);
-    board.rows = [];
-    board.numRows = 20;
-    board.numCols = 20;
-
-    board.createMatrix();
+    board.createSnake();
+    board.addFruit();
 
     this.score = 0;
     this.speed = 100;
@@ -282,7 +260,7 @@ var game = Object.create({
   }
 });
 
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
   if (event.keyCode === keycodes.UP && snake.direction !== directions.DOWN) {
     snake.direction = directions.UP;
   } else if (event.keyCode === keycodes.DOWN && snake.direction !== directions.UP) {
@@ -306,7 +284,7 @@ function run(timestamp) {
     return;
   }
 
-  if ((timestamp - game.lastTick) < game.speed) {
+  if (timestamp - game.lastTick < game.speed) {
     return false;
   }
   game.lastTick = timestamp;
