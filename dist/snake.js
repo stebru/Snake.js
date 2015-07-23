@@ -237,15 +237,11 @@ var game = Object.create({
     this.gameOver();
     this.resetScore();
 
-    if (board) {
-      board.destroy();
-    } else {
-      board = Object.create(boardProto);
-      board.rows = [];
-      board.numRows = 20;
-      board.numCols = 20;
-      board.createMatrix();
-    }
+    board = Object.create(boardProto);
+    board.rows = [];
+    board.numRows = 20;
+    board.numCols = 20;
+    board.createMatrix();
 
     board.createSnake();
     board.addFruit();
