@@ -4,6 +4,7 @@ var browserSync = require('browser-sync').create();
 
 gulp.task('browser-sync', function() {
   browserSync.init({
+    files: ['src/snake.js'],
     browser: ['Google Chrome Canary'],
     port: 8000,
     server: {
