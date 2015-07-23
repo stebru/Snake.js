@@ -22,15 +22,12 @@ html, body {
   padding: 0.5em; }
   .col.on {
     background-color: #E71D36; }
-
-.col.on:after {
-  content: "";
-  color: #fff; }
-
-.col.on.head {
-  background-color: #F56A20; }
-
-.col.fruit {
-  background-color: #069E2D;
-  border-radius: 50%;
-  transition: background-color 0.3s ease-in-out; }
+    .col.on:after .col.on:after {
+      content: "";
+      color: #fff; }
+    .col.on.head {
+      background-color: #F56A20; }
+  .col.fruit {
+    background-color: #069E2D;
+    border-radius: 50%;
+    transition: background-color 0.3s ease-in-out; }
