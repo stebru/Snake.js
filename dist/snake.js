@@ -107,6 +107,7 @@ var boardProto = {
       var tile = board.getTileAt(rndRow, rndCol);
       isTileOccupied = !!tile.occupiedBy;
     } while (isTileOccupied);
+
     tile.addFruit();
   },
 
