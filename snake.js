@@ -1,4 +1,4 @@
-var snake;
+var snake, board;
 var boardElement = document.getElementById('board');
 var scoreElement = document.getElementById('score');
 
@@ -13,7 +13,8 @@ var keycodes = {
   UP: 38,
   DOWN: 40,
   RIGHT: 39,
-  LEFT: 37
+  LEFT: 37,
+  SPACE: 32
 };
 
 var bodyProto = {};
@@ -39,18 +40,20 @@ var tileProto = {
       this.element.classList.add('head');
     }
   },
+
   clearTile: function() {
     this.element.classList.remove('on', 'head', 'tail');
   },
+
   addSnakePart: function(snakePart) {
     if (this.hasFruit) {
       this.removeFruit();
       game.updateScore();
-      board.addFruit();
       var body = Object.create(bodyProto);
       var tailTile = snake.bodyParts[snake.bodyParts.length - 1].tile;
       body.tile = tailTile.addSnakePart(body);
       snake.bodyParts.push(body);
+      board.addFruit();
     } else if (snakePart.isHead && this.occupiedBy) {
       game.gameOver();
       return false;
@@ -60,22 +63,27 @@ var tileProto = {
     this.paintSnakePart();
     return this;
   },
+
   removeSnakePart: function() {
     this.occupiedBy = null;
     this.clearTile();
     return this;
   },
+
   hasSnakePart: function() {
     return this.occupiedBy != null;
   },
+
   addFruit: function() {
     this.hasFruit = true;
     this.paintFruit();
   },
+
   removeFruit: function() {
     this.hasFruit = false;
     this.element.classList.remove('fruit');
   },
+
   paintFruit: function() {
     this.element.classList.add('fruit');
   }
@@ -89,9 +97,14 @@ var boardProto = {
   },
 
   addFruit: function() {
-    var rndRow = Math.floor(Math.random() * board.numRows);
-    var rndCol = Math.floor(Math.random() * board.numCols);
-    var tile = board.getTileAt(rndRow, rndCol);
+
+    var isTileOccupied = true;
+    do {
+      var rndRow = Math.floor(Math.random() * board.numRows);
+      var rndCol = Math.floor(Math.random() * board.numCols);
+      var tile = board.getTileAt(rndRow, rndCol);
+      isTileOccupied = !!tile.occupiedBy;
+    } while (isTileOccupied);
     tile.addFruit();
   },
 
@@ -115,9 +128,32 @@ var boardProto = {
     snake.bodyParts.push(body);
   },
 
+  destroy: function() {
+    this.fragment = null;
+    boardElement.innerHTML = '';
+
+    snake.bodyParts.forEach(function(bodyPart) {
+      bodyPart.tile.element = null;
+      bodyPart.tile = null;
+      bodyPart = null;
+    });
+    snake.bodyParts = null;
+    snake = null;
+
+    board.rows.forEach(function(rowObj) {
+      rowObj.tiles.forEach(function(tile) {
+        tile.element = null;
+        tile = null;
+      });
+      rowObj = null;
+    });
+
+    board.rows = [];
+  },
+
   createMatrix: function() {
 
-    var fragment = document.createDocumentFragment();
+    this.fragment = document.createDocumentFragment();
     var row, col;
 
     for (var i = 0; i < this.numRows; i++) {
@@ -143,14 +179,12 @@ var boardProto = {
         rowObj.tiles.push(tile);
       }
       this.rows.push(rowObj);
-      fragment.appendChild(row);
+      this.fragment.appendChild(row);
     }
-    boardElement.appendChild(fragment);
+    boardElement.appendChild(this.fragment);
 
     this.createSnake();
     this.addFruit();
-
-    window.requestAnimationFrame(run);
   },
 
   draw: function(timestamp) {
@@ -206,29 +240,47 @@ var boardProto = {
   }
 };
 
-var board = Object.create(boardProto);
-board.rows = [];
-board.numRows = 20;
-board.numCols = 20;
-
-board.createMatrix();
-
 var game = Object.create({
   updateScore: function() {
-    console.log('updateScore', this.nextScore);
     this.score += this.nextScore;
     scoreElement.innerHTML = this.score;
     this.speed -= 1;
     this.nextScore += 5;
   },
+
+  resetScore: function() {
+    this.score = 0;
+    scoreElement.innerHTML = this.score;
+  },
+
   gameOver: function() {
     this.isGameOver = true;
+  },
+
+  start: function() {
+    this.gameOver();
+    this.resetScore();
+
+    if (board) {
+      board.destroy();
+    }
+
+    board = Object.create(boardProto);
+    board.rows = [];
+    board.numRows = 20;
+    board.numCols = 20;
+
+    board.createMatrix();
+
+    this.score = 0;
+    this.speed = 100;
+    this.lastTick = 0;
+    this.nextScore = 10;
+
+    this.isGameOver = false;
+    window.requestAnimationFrame(run);
   }
 });
-game.score = 0;
-game.speed = 100;
-game.lastTick = 0;
-game.nextScore = 10;
 
 document.addEventListener('keydown', function(event) {
   if (event.keyCode === keycodes.UP && snake.direction !== directions.DOWN) {
@@ -239,6 +291,10 @@ document.addEventListener('keydown', function(event) {
     snake.direction = directions.RIGHT;
   } else if (event.keyCode === keycodes.LEFT && snake.direction !== directions.RIGHT) {
     snake.direction = directions.LEFT;
+  }
+
+  if (event.keyCode === keycodes.SPACE) {
+    game.start();
   }
 });
 
@@ -257,3 +313,5 @@ function run(timestamp) {
 
   board.draw(timestamp);
 }
+
+game.start();
