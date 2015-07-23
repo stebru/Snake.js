@@ -6,8 +6,9 @@ var babelify = require('babelify');
 var fs = require('fs');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
+var sass = require('gulp-sass');
 
-gulp.task('serve', ['js'], function() {
+gulp.task('serve', ['js', 'sass'], function() {
   browserSync.init({
     browser: ['Google Chrome Canary'],
     port: 8000,
@@ -16,7 +17,7 @@ gulp.task('serve', ['js'], function() {
     }
   });
 
-  gulp.watch('src/*.js', ['js-watch']);
+  gulp.watch(['src/*.js', 'src/*.scss'], ['watch']);
 });
 
 gulp.task('js', function() {
@@ -32,5 +33,13 @@ gulp.task('js', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('js-watch', ['js'], browserSync.reload);
-gulp.task('default', ['js', 'serve']);
+gulp.task('sass', function() {
+  gulp.src('src/*.scss')
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest('dist'));
+});
+
+gulp.task('watch', ['js', 'sass'], function() {
+  browserSync.reload();
+});
+gulp.task('default', ['js', 'sass', 'serve']);
