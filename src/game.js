@@ -15,7 +15,7 @@ var game = Object.create({
   },
 
   gameOver() {
-    this.isGameOver = true;
+    window.cancelAnimationFrame(this.raf);
   },
 
   start() {
@@ -41,7 +41,6 @@ var game = Object.create({
     this.speed = 100;
     this.lastTick = 0;
     this.nextScore = 10;
-    this.isGameOver = false;
 
     this.listen();
 
@@ -78,11 +77,7 @@ var game = Object.create({
   },
 
   run(timestamp) {
-    window.requestAnimationFrame(this.run.bind(this));
-
-    if (this.isGameOver) {
-      return;
-    }
+    this.raf = window.requestAnimationFrame(this.run.bind(this));
 
     if ((timestamp - this.lastTick) < this.speed) {
       return false;
