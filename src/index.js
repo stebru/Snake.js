@@ -1,5 +1,9 @@
 import game from './game.js';
 
+if (window.location.port === 80 && window.location.protocol != 'https:') {
+	window.location.protocol = 'https:';
+}
+
 game.start();
 
 if ('serviceWorker' in navigator) {
