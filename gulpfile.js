@@ -7,6 +7,7 @@ var fs = require('fs');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var sass = require('gulp-sass');
+var concat = require('gulp-concat');
 
 gulp.task('serve', ['js', 'sass'], function() {
   browserSync.init({
@@ -34,8 +35,9 @@ gulp.task('js', function() {
 });
 
 gulp.task('sass', function() {
-  gulp.src('src/*.scss')
+  gulp.src(['bower_components/normalize.css/normalize.css', 'src/*.scss'])
     .pipe(sass().on('error', sass.logError))
+    .pipe(concat('style.css'))
     .pipe(gulp.dest('dist'));
 });
 
