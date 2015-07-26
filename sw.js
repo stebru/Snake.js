@@ -1,9 +1,8 @@
-var CACHE_NAME = 'snake-cache-v2';
+var CACHE_NAME = 'snake-cache-v3';
 var urls = [
   'index.html',
   '/dist/bundle.js',
-  '/bower_components/normalize.css/normalize.css',
-  '/dist/snake.css'
+  '/dist/style.css'
 ];
 
 self.addEventListener('install', function(event) {
