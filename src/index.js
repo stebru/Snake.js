@@ -1,6 +1,6 @@
 import game from './game.js';
 
-if (window.location.port === 80 && window.location.protocol != 'https:') {
+if ((window.location.port === 80 || !window.location.port) && window.location.protocol !== 'https:') {
 	window.location.protocol = 'https:';
 }
 
